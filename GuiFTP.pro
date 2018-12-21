@@ -37,7 +37,6 @@ HEADERS += \
     IPAddress.h \
     SocektException.h \
     SocketTCP.h
-
 FORMS += \
         mainwindow.ui
 LIBS += -lws2_32

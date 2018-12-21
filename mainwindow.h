@@ -25,10 +25,15 @@ private slots:
     void onDirectoryChanged(QListWidgetItem *);
 
 private:
+    std::string login = "";
+    std::string password = "";
+    std::string address = "";
+    uint16_t port;
     Ui::MainWindow *ui;
     QString currentDir;
     QStringList folders;
     FTPClient ftp;
+    void readSettings();
 };
 
 #endif // MAINWINDOW_H

@@ -1,70 +1,27 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
-/*#include "boost/program_options.hpp"
+#include <QSettings>
+#include <QDir>
 
+void MainWindow::readSettings()
+{
+    QSettings settings(QDir::current().filePath("config.ini"), QSettings::IniFormat);
+    address = settings.value("ip","localhost").toString().toStdString();
+    port = static_cast<uint16_t>(settings.value("port", 21).toUInt());
+    login = settings.value("login").toString().toStdString();
+    password =settings.value("password").toString().toStdString();
+}
 
-namespace po = boost::program_options;*/
-/*
-void options_required(const po::variables_map& vm, const std::vector<std::string>& required_options)
-{
-    for (const auto& item : required_options) {
-        if (vm.count(item) == 0)
-            throw std::logic_error(std::string("Option '") + item
-                + "' is required.");
-    }
-}
-po::variables_map TryParseCommandLineArguments(int argc, char **argv)
-{
-    std::ifstream configFile{ "config.ini",std::ifstream::in };
-    po::options_description configFileOptions("Allowed options");
-    configFileOptions.add_options()
-        ("ip", po::value<std::string>(), "POP3 server address")
-        ("port", po::value<uint16_t>(), "POP3 server port")
-        ("login,l", po::value<std::string>(), "Email login")
-        ("pass,p", po::value<std::string>(), "Email password")
-        ("delay", po::value<unsigned>(), "Delay in seconds between subsequent email checks")
-        ("help,h", "Produce help message")
-        ("version,v", "Prints version number")
-        ;
-    po::variables_map vm;
-    auto a = *argv;
-    try {
-        po::store(po::parse_command_line(argc, argv, configFileOptions), vm);
-        po::store(po::parse_config_file(configFile, configFileOptions), vm);
-        options_required(vm, { "ip","port","login","pass","delay", });
-    }
-    catch (const std::logic_error &ex)
-    {
-        std::cerr << ex.what() << '\n';
-        std::cout << configFileOptions << "\n";
-        exit(1);
-    }
-    catch (std::exception)
-    {
-        std::cerr << "Error: Unrecognized Option!\n";
-        exit(2);
-    }
-    po::notify(vm);
-    if (vm.count("help")) {
-        std::cout << configFileOptions << "\n";
-        exit(0);
-    }
-    if (vm.count("version"))
-    {
-        std::cout << "v.1.0.0\n";
-        exit(0);
-    }
-    return vm;
-}
-*/
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     ftp()
 {
     ui->setupUi(this);
+    readSettings();
     QObject::connect(this->ui->login_button,SIGNAL(clicked()),this,SLOT(onLoginButtonClicked()));
     QObject::connect(this->ui->logout_button, SIGNAL(clicked()),this,SLOT(onLogoutButtonClicked()));
     QObject::connect(this->ui->tree_button, SIGNAL(clicked()),this,SLOT(onPrintTreeClicked()));
@@ -74,8 +31,8 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::onLoginButtonClicked()
 {
     try {
-    ftp.Connect(ADDR, PORT);
-    ftp.Login(USR, PASS);
+    ftp.Connect(address, port);
+    ftp.Login(login, password);
     onUpdateCurrentFolder();
     onGetDirectories();
     }
