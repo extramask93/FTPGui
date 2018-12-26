@@ -3,7 +3,7 @@
 #include <list>
 #include <functional>
 #include <memory>
-#include "SocketTCP.h"
+#include "SocketTCP/SocketTCP.h"
 
 class FTPClient
 {

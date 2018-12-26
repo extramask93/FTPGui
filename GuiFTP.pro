@@ -27,16 +27,13 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     FTPClient.cpp \
-    IPAddress.cpp \
-    SocektException.cpp \
-    SocketTCP.cpp
+    SocketTCP/SocketTCP.cpp
 
 HEADERS += \
         mainwindow.h \
     FTPClient.h \
-    IPAddress.h \
-    SocektException.h \
-    SocketTCP.h
+    SocketTCP/SocketException.h \
+    SocketTCP/SocketTCP.h
 FORMS += \
         mainwindow.ui
 LIBS += -lws2_32

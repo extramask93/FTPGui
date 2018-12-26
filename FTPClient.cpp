@@ -1,5 +1,4 @@
 #include "FTPClient.h"
-#include "IPAddress.h"
 #include <regex>
 #include <chrono>
 #include <algorithm>
@@ -9,7 +8,7 @@ using namespace std::chrono_literals;
 
 std::string FTPClient::Connect(std::string addr, uint16_t port)
 {
-	cmdSock.TCPConnect(std::move(IPAddress{addr}),port);
+    cmdSock.TCPConnect(addr,port);
 	isConnected = true;
 	return ReadFTPMultilineResponse();
 }
@@ -97,13 +96,13 @@ std::string FTPClient::ReadFTPMultilineResponse() const
 {
 	std::string s;
 	std::string buff;
-	cmdSock.TCPReceiveLine(s);
+    cmdSock.TCPReceiveUntil(s);
 	if (s.substr(3, 1) == "-")
 	{
 		const auto endCode = s.substr(0, 3) + " ";
 		while (true)
 		{
-			cmdSock.TCPReceiveLine(buff);
+            cmdSock.TCPReceiveUntil(buff);
 			s += "\r\n" + buff;
 			if (buff.substr(0, 4) == endCode)
 				break;

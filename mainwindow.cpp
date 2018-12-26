@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include <QMessageBox>
 #include <QSettings>
 #include <QDir>
 
@@ -35,12 +36,15 @@ void MainWindow::onLoginButtonClicked()
     ftp.Login(login, password);
     onUpdateCurrentFolder();
     onGetDirectories();
-    }
-    catch(std::runtime_error &er) {
-        std::cerr<<er.what();
-    }
     ui->logout_button->setEnabled(1);
     ui->tree_button->setEnabled(1);
+    }
+    catch(std::runtime_error &er) {
+        QMessageBox msgBox;
+        msgBox.setText(er.what());
+        msgBox.exec();
+    }
+
 
 }
 
@@ -50,7 +54,9 @@ void MainWindow::onLogoutButtonClicked()
         ftp.Quit();
     }
     catch(std::runtime_error& er) {
-        std::cerr<<er.what();
+        QMessageBox msgBox;
+        msgBox.setText(er.what());
+        msgBox.exec();
     }
     ui->label_2->setText("");
     ui->listWidget->clear();
@@ -63,10 +69,18 @@ void MainWindow::onLogoutButtonClicked()
 
 void MainWindow::onUpdateCurrentFolder()
 {
+    try {
     auto pwd = ftp.Pwd();
     auto pwd_vec = ftp.Split(pwd,"\"");
     currentDir = QString::fromStdString(pwd_vec.at(1));
     ui->label_2->setText(currentDir);
+    }
+    catch(std::runtime_error& er)
+    {
+        QMessageBox msgBox;
+        msgBox.setText(er.what());
+        msgBox.exec();
+    }
 }
 
 void MainWindow::onPrintTreeClicked()
@@ -83,13 +97,16 @@ void MainWindow::onPrintTreeClicked()
         ui->listWidget->addItems(qlist);
     }
     catch(std::runtime_error& er) {
-        std::cerr<<er.what();
+        QMessageBox msgBox;
+        msgBox.setText(er.what());
+        msgBox.exec();
     }
 }
 
 void MainWindow::onGetDirectories()
 {
     QStringList qlist;
+    try {
     auto dirs = ftp.Nlst(currentDir.toStdString());
     qlist.push_back("..");
     for(const auto& it: dirs) {
@@ -97,6 +114,13 @@ void MainWindow::onGetDirectories()
     }
     ui->listWidget->clear();
     ui->listWidget->addItems(qlist);
+    }
+    catch(std::runtime_error &er)
+    {
+        QMessageBox msgBox;
+        msgBox.setText(er.what());
+        msgBox.exec();
+    }
 }
 
 void MainWindow::onDirectoryChanged(QListWidgetItem *dir)
@@ -110,8 +134,8 @@ void MainWindow::onDirectoryChanged(QListWidgetItem *dir)
         onUpdateCurrentFolder();
         onGetDirectories();
     }
-    catch(std::runtime_error& ex) {
-        std::cerr<<ex.what();
+    catch(std::runtime_error& er) {
+
     }
 }
 
