@@ -22,6 +22,7 @@ private slots:
     void onUpdateCurrentFolder();
     void onPrintTreeClicked();
     void onGetDirectories();
+    void onChangeDirectory();
     void onDirectoryChanged(QListWidgetItem *);
 
 private:

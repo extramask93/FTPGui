@@ -27,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->logout_button, SIGNAL(clicked()),this,SLOT(onLogoutButtonClicked()));
     QObject::connect(this->ui->tree_button, SIGNAL(clicked()),this,SLOT(onPrintTreeClicked()));
     QObject::connect(this->ui->listWidget, SIGNAL(itemPressed(QListWidgetItem*)),this,SLOT(onDirectoryChanged(QListWidgetItem *)));
+    QObject::connect(this->ui->currentFolderEdit, SIGNAL(returnPressed()),this,SLOT(onChangeDirectory()));
+
 }
 
 void MainWindow::onLoginButtonClicked()
@@ -58,7 +60,7 @@ void MainWindow::onLogoutButtonClicked()
         msgBox.setText(er.what());
         msgBox.exec();
     }
-    ui->label_2->setText("");
+    ui->currentFolderEdit->setText("");
     ui->listWidget->clear();
     ui->login_button->setEnabled(1);
     ui->logout_button->setEnabled(0);
@@ -73,7 +75,7 @@ void MainWindow::onUpdateCurrentFolder()
     auto pwd = ftp.Pwd();
     auto pwd_vec = ftp.Split(pwd,"\"");
     currentDir = QString::fromStdString(pwd_vec.at(1));
-    ui->label_2->setText(currentDir);
+    ui->currentFolderEdit->setText(currentDir);
     }
     catch(std::runtime_error& er)
     {
@@ -108,10 +110,12 @@ void MainWindow::onGetDirectories()
     QStringList qlist;
     try {
     auto dirs = ftp.Nlst(currentDir.toStdString());
-    qlist.push_back("..");
-    for(const auto& it: dirs) {
-        qlist.push_back(QString::fromStdString(it));
+    for(auto file : dirs)
+    {
+        auto split = ftp.Split(file,"/");
+        qlist.push_back(QString::fromStdString("/"+split.back()));
     }
+    qlist.push_front("..");
     ui->listWidget->clear();
     ui->listWidget->addItems(qlist);
     }
@@ -123,14 +127,33 @@ void MainWindow::onGetDirectories()
     }
 }
 
+void MainWindow::onChangeDirectory()
+{
+    try {
+        if(ui->currentFolderEdit->text() == "..")
+            ftp.Cdup();
+        else {
+            auto cd = ui->currentFolderEdit->text();
+            ftp.Cwd(cd.toStdString());
+        }
+        onUpdateCurrentFolder();
+        onGetDirectories();
+    }
+    catch(std::runtime_error& er) {
+
+    }
+}
+
 void MainWindow::onDirectoryChanged(QListWidgetItem *dir)
 {
 
     try {
         if(dir->text() == "..")
             ftp.Cdup();
-        else
-            ftp.Cwd(dir->text().toStdString());
+        else {
+            auto cd = currentDir + dir->text();
+            ftp.Cwd(cd.toStdString());
+        }
         onUpdateCurrentFolder();
         onGetDirectories();
     }
