@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "transientexception.h"
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -139,8 +140,10 @@ void MainWindow::onChangeDirectory()
         onUpdateCurrentFolder();
         onGetDirectories();
     }
-    catch(std::runtime_error& er) {
-
+    catch(std::runtime_error er) {
+        QMessageBox msgBox;
+        msgBox.setText(er.what());
+        msgBox.exec();
     }
 }
 
@@ -157,8 +160,10 @@ void MainWindow::onDirectoryChanged(QListWidgetItem *dir)
         onUpdateCurrentFolder();
         onGetDirectories();
     }
-    catch(std::runtime_error& er) {
-
+    catch(std::runtime_error er) {
+        QMessageBox msgBox;
+        msgBox.setText(er.what());
+        msgBox.exec();
     }
 }
 

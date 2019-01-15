@@ -27,13 +27,15 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     FTPClient.cpp \
-    SocketLib/SocketTCP.cpp
+    SocketLib/SocketTCP.cpp \
+    transientexception.cpp
 
 HEADERS += \
         mainwindow.h \
     FTPClient.h \
     SocketLib/SocketException.h \
-    SocketLib/SocketTCP.h
+    SocketLib/SocketTCP.h \
+    transientexception.h
 FORMS += \
         mainwindow.ui
 win32-msvc*: {

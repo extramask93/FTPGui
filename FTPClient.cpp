@@ -3,6 +3,7 @@
 #include <chrono>
 #include <algorithm>
 #include <thread>
+#include "transientexception.h"
 #define FOLDER_SEP "/"
 using namespace std::chrono_literals;
 
@@ -73,9 +74,9 @@ void FTPClient::ExploreRecursively(std::string path,std::list<std::string> &cont
 		try
 		{
 			ExploreRecursively(file,container, depth+1);
-            std::this_thread::sleep_for(100ms);
+            std::this_thread::sleep_for(10ms);
 		}
-		catch(...)
+        catch(TransientException &)
 		{
 			//do nothing as it is not directory
 		}
@@ -127,7 +128,7 @@ auto FTPClient::GetDataStreamIPAndPortFromResponse(std::string response) const
 	}
 	else
 	{
-		throw std::runtime_error("no datastream adress");
+        throw std::runtime_error("Server did not open data stream, message: "+ response);
 	}
 	auto port = atoi(numbers[4].c_str()) * 256;
 	port += atoi(numbers[5].c_str());
@@ -145,7 +146,7 @@ std::unique_ptr<SocketTCP> FTPClient::OpenDataChannel()
 	std::unique_ptr<SocketTCP> dataSock{ new SocketTCP{} };
 	auto response = SendCommand("PASV");
 	auto [ip, port] = GetDataStreamIPAndPortFromResponse(response);
-	dataSock->TCPConnect(ip, port);
+    dataSock->TCPConnect(ip, static_cast<std::uint16_t>(port));
 	return dataSock;
 }
 
@@ -169,11 +170,13 @@ std::vector<std::string> FTPClient::Split(std::string& s, std::string tok ) cons
 
 void FTPClient::CheckForErrors(std::string response) const
 {
-	int code = atoi(response.substr(0, 3).c_str());
+    int code = atoi(response.substr(0, 1).c_str());
 	switch(code)
 	{
-	case 550:
-		throw std::runtime_error("Error, no such directory");
+    case 4:
+        throw TransientException(response);
+    case 5:
+        throw PermamentException(response);
 	default: ;
 	}
 }
