@@ -36,7 +36,10 @@ HEADERS += \
     SocketLib/SocketTCP.h
 FORMS += \
         mainwindow.ui
-LIBS += -lws2_32
+win32-msvc*: {
+LIBS += Ws2_32.lib
+}
 
-QMAKE_CXXFLAGS += -std=c++17
+
+QMAKE_CXXFLAGS += -std=c++17 -Wall
 CONFIG += exceptions

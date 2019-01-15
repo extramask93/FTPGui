@@ -3,7 +3,7 @@
 #include <chrono>
 #include <algorithm>
 #include <thread>
-
+#define FOLDER_SEP "/"
 using namespace std::chrono_literals;
 
 std::string FTPClient::Connect(std::string addr, uint16_t port)
@@ -28,11 +28,6 @@ std::string FTPClient::Quit()
 	return response;
 }
 
-std::vector<std::string> FTPClient::RetrLines(std::string cmd)
-{
-	throw std::runtime_error("RetrLines not implemented");
-}
-
 std::string FTPClient::SendCommand(std::string cmd)
 {
 	cmdSock.TCPSendString(cmd+"\r\n");
@@ -47,7 +42,7 @@ std::vector<std::string> FTPClient::Nlst(std::string path = "")
 	std::string buffer;
 	auto dataSock = OpenDataChannel();
 	SendCommand("NLST " + path);
-	dataSock->ReadAll(buffer);
+    dataSock->TCPReveiveUtilClosed(buffer);
 	ReadFTPMultilineResponse();
 	data = Split(buffer);
 	return data;
@@ -69,16 +64,16 @@ void FTPClient::ExploreRecursively(std::string path,std::list<std::string> &cont
 {
 	Cwd(path);
 	auto fileList = Nlst(path);
-    std::string prefix{ "  ",static_cast<size_t>(depth) };
+    std::string prefix{ "\t",static_cast<size_t>(depth) };
 	for(auto file : fileList)
 	{
 		auto temp = prefix + file;
-		auto split = Split(temp,"/");
-		container.push_back(prefix+"/"+split.back());
+        auto split = Split(temp,FOLDER_SEP);
+        container.push_back(prefix+FOLDER_SEP+split.back());
 		try
 		{
 			ExploreRecursively(file,container, depth+1);
-			//std::this_thread::sleep_for(100ms);
+            std::this_thread::sleep_for(100ms);
 		}
 		catch(...)
 		{

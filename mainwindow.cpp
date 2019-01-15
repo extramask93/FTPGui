@@ -13,7 +13,7 @@ void MainWindow::readSettings()
     address = settings.value("ip","localhost").toString().toStdString();
     port = static_cast<uint16_t>(settings.value("port", 21).toUInt());
     login = settings.value("login").toString().toStdString();
-    password =settings.value("password").toString().toStdString();
+    password =settings.value("password","").toString().toStdString();
 }
 
 MainWindow::MainWindow(QWidget *parent) :
