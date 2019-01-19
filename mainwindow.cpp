@@ -8,12 +8,14 @@
 #include <QSettings>
 #include <QDir>
 
+
+
 void MainWindow::readSettings()
 {
     QSettings settings(QDir::current().filePath("config.ini"), QSettings::IniFormat);
     address = settings.value("ip","localhost").toString().toStdString();
     port = static_cast<uint16_t>(settings.value("port", 21).toUInt());
-    login = settings.value("login").toString().toStdString();
+    login = settings.value("login","").toString().toStdString();
     password =settings.value("password","").toString().toStdString();
 }
 
@@ -43,13 +45,18 @@ void MainWindow::onLoginButtonClicked()
     ui->tree_button->setEnabled(1);
     }
     catch(std::runtime_error &er) {
-        QMessageBox msgBox;
+        QMessageBox msgBox(this);
         msgBox.setText(er.what());
         msgBox.exec();
     }
 
 
 }
+
+
+
+
+
 
 void MainWindow::onLogoutButtonClicked()
 {
@@ -80,7 +87,7 @@ void MainWindow::onUpdateCurrentFolder()
     }
     catch(std::runtime_error& er)
     {
-        QMessageBox msgBox;
+        QMessageBox msgBox(this);
         msgBox.setText(er.what());
         msgBox.exec();
     }
@@ -100,7 +107,7 @@ void MainWindow::onPrintTreeClicked()
         ui->listWidget->addItems(qlist);
     }
     catch(std::runtime_error& er) {
-        QMessageBox msgBox;
+        QMessageBox msgBox(this);
         msgBox.setText(er.what());
         msgBox.exec();
     }
@@ -122,7 +129,7 @@ void MainWindow::onGetDirectories()
     }
     catch(std::runtime_error &er)
     {
-        QMessageBox msgBox;
+        QMessageBox msgBox(this);
         msgBox.setText(er.what());
         msgBox.exec();
     }
@@ -141,7 +148,7 @@ void MainWindow::onChangeDirectory()
         onGetDirectories();
     }
     catch(std::runtime_error er) {
-        QMessageBox msgBox;
+        QMessageBox msgBox(this);
         msgBox.setText(er.what());
         msgBox.exec();
     }
@@ -161,7 +168,7 @@ void MainWindow::onDirectoryChanged(QListWidgetItem *dir)
         onGetDirectories();
     }
     catch(std::runtime_error er) {
-        QMessageBox msgBox;
+        QMessageBox msgBox(this);
         msgBox.setText(er.what());
         msgBox.exec();
     }
