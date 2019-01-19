@@ -38,10 +38,8 @@ HEADERS += \
     transientexception.h
 FORMS += \
         mainwindow.ui
-win32-msvc*: {
-LIBS += Ws2_32.lib
-}
 
+win32:LIBS += -lws2_32
 
-QMAKE_CXXFLAGS += -std=c++17 -Wall
+CONFIG += c++17
 CONFIG += exceptions
